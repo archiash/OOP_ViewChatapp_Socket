@@ -15,7 +15,7 @@ bun install
 
 2. Configure backend URL in `.env`:
 ```
-VITE_API_URL=http://localhost:8080/api
+VITE_API_URL=http://localhost:8080/
 ```
 
 3. Start development server:
