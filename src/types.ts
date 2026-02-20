@@ -1,7 +1,11 @@
+export interface User {
+  userID: string
+  username: string
+}
+
 export interface Message {
   messageID: string
-  userID: string
-  userName: string
+  user: User
   message: string
   deleted?: boolean
 }

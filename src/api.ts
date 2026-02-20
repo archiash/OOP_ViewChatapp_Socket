@@ -54,11 +54,11 @@ export const api = {
   },
 
   // Edit a message
-  editMessage: async (messageID: string, userID: string, message: string): Promise<boolean> => {
+  editMessage: async (messageID: string, userID: string, newMessage: string): Promise<boolean> => {
     const res = await fetch(`${API_BASE}/message/edit`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messageID, userID, message })
+      body: JSON.stringify({ userID, messageID, newMessage })
     })
     return res.ok
   }

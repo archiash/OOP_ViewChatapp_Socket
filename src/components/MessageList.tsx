@@ -27,7 +27,7 @@ export function MessageList({ messages, currentUserID, onDeleteMessage, onEditMe
         <MessageItem
           key={msg.messageID}
           message={msg}
-          isOwn={msg.userID === currentUserID}
+          isOwn={msg.user.userID === currentUserID}
           onDelete={onDeleteMessage}
           onEdit={onEditMessage}
         />

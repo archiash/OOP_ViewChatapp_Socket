@@ -37,7 +37,7 @@ export function MessageItem({ message, isOwn, onDelete, onEdit }: MessageItemPro
         <div className="flex flex-col gap-0.5">
           {!isOwn && (
             <span className="text-[11px] text-gray-500 dark:text-gray-400 ml-3">
-              {message.userName || message.userID.slice(0, 8)}
+              {message.user.username || message.user.userID.slice(0, 8)}
             </span>
           )}
           <div className="rounded-[18px] px-3 py-2 bg-[#f0f0f0] dark:bg-[#3a3b3c] border border-dashed border-gray-300 dark:border-gray-600">
@@ -93,7 +93,7 @@ export function MessageItem({ message, isOwn, onDelete, onEdit }: MessageItemPro
       <div className="flex flex-col gap-0.5 max-w-[65%]">
         {!isOwn && (
           <span className="text-[11px] text-gray-500 dark:text-gray-400 ml-3">
-            {message.userName || message.userID.slice(0, 8)}
+            {message.user.username || message.user.userID.slice(0, 8)}
           </span>
         )}
         {isEditing ? (
