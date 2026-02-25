@@ -35,8 +35,6 @@ function App() {
   useEffect(() => {
     if (user?.userID) {
       connect(user.userID)
-      // Mock online users for UI testing
-      setOnlineUsers([user, { userID: "mock-1", username: "Alice" }, { userID: "mock-2", username: "Bob" }])
       return () => disconnect()
     }
   }, [user?.userID])
