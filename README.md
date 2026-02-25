@@ -34,6 +34,8 @@ VITE_API_URL (e.g., http://localhost:8080)
 |----------|--------|----------------|---------|----------|
 | `/message` | GET | - | - | `Message[]` |
 | `/user/add` | POST | Body | `{ username: string }` | `string` (userID) |
+| `/user/typing` | GET | - | - | `User[]` |
+| `/user/user-number` | GET | - | - | `number` |
 | `/message/send` | POST | Body | `{ userID: string, userName: string, message: string }` | `boolean` |
 | `/message/{userID}/{messageID}` | DELETE | Path | - | `boolean` |
 | `/message/search` | GET | Query | `?filter=<keyword>` | `Message[]` |
