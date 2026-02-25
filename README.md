@@ -36,6 +36,7 @@ VITE_API_URL (e.g., http://localhost:8080)
 | `/user/add` | POST | Body | `{ username: string }` | `string` (userID) |
 | `/user/typing` | GET | - | - | `User[]` |
 | `/user/user-number` | GET | - | - | `number` |
+| `/user/user-list` | GET | - | - | `User[]` |
 | `/message/send` | POST | Body | `{ userID: string, userName: string, message: string }` | `boolean` |
 | `/message/{userID}/{messageID}` | DELETE | Path | - | `boolean` |
 | `/message/search` | GET | Query | `?filter=<keyword>` | `Message[]` |
@@ -50,6 +51,7 @@ VITE_API_URL (e.g., http://localhost:8080)
 | `/topic/messages` | `Message[]` | Receives message list |
 | `/topic/typing` | `User[]` | Receives the list of users currently typing |
 | `/topic/user-number` | `number` | Receives the current total number of online users |
+| `/topic/user-list` | `User[]` | Receives the list of online users |
 | `/user/queue/errors` | `string`| Receives user-specific socket errors |
 
 ### Publications (Send)

@@ -12,6 +12,14 @@ export const api = {
     throw new Error('Failed to fetch messages')
   },
 
+  getOnlineUsers: async (): Promise<User[]> => {
+    const res = await fetch(`${API_BASE}/user/user-list`)
+    if (res.ok) {
+      return res.json()
+    }
+    throw new Error('Failed to fetch online users')
+  },
+
   getTypingUsers: async (): Promise<User[]> => {
     const res = await fetch(`${API_BASE}/user/typing`)
     if (res.ok) {

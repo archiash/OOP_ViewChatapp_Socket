@@ -72,6 +72,16 @@ function App() {
     }
   }
 
+  const fetchOnlineUsers = async () => {
+    try {
+      const data = await api.getOnlineUsers()
+      console.log("online users fetched", data)
+      setOnlineUsers(data)
+    } catch (error) {
+      console.error('Failed to fetch online users:', error)
+    }
+  }
+
   useEffect(() => {
 
     if (!isConnected) return
@@ -79,6 +89,7 @@ function App() {
     fetchMessages()
     fetchUserNumber()
     fetchTypingUsers()
+    fetchOnlineUsers()
 
     subscribe("/user/queue/errors", (payload) => {
       const message = payload.body
@@ -96,6 +107,11 @@ function App() {
       setTypingUsers(message)
     })
 
+    subscribe("/topic/user-list", (payload) => {
+      const message = JSON.parse(payload.body)
+      setOnlineUsers(message)
+    })
+
     subscribe("/topic/messages", (payload) => {
       const message = JSON.parse(payload.body)
       console.log("message received", message)
@@ -106,6 +122,8 @@ function App() {
       unsubscribe("/topic/user-number")
       unsubscribe("/topic/typing")
       unsubscribe("/topic/messages")
+      unsubscribe("/topic/user-list")
+      unsubscribe("/user/queue/errors")
     }
 
   }, [isConnected])
