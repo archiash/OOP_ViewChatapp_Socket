@@ -45,11 +45,11 @@ export const useWebSocket = () => {
         }
     };
 
-    const connect = () => {
+    const connect = (uuid: string) => {
         console.log(serverUrl)
         try {
             const stompClient = new Client({
-                webSocketFactory: () => new SockJS(`${serverUrl}/ws`),
+                webSocketFactory: () => new SockJS(`${serverUrl}/ws?uuid=${uuid}`),
                 onConnect: () => onConnected(stompClient),
                 onDisconnect: () => disconnect(),
                 reconnectDelay: 2000,

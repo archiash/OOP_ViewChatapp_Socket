@@ -3,12 +3,13 @@ import { ChatIcon } from './ChatIcon'
 interface ChatHeaderProps {
   username: string
   userNumber: number
+  showUsers: boolean
   isDark: boolean
   onToggleTheme: () => void
+  onToggleUsers: () => void
 }
 
-export function ChatHeader({ username, userNumber, isDark, onToggleTheme }: ChatHeaderProps) {
-
+export function ChatHeader({ username, userNumber, showUsers, isDark, onToggleTheme, onToggleUsers }: ChatHeaderProps) {
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#242526] border-b border-[#e4e6eb] dark:border-[#3a3b3c] shadow-sm transition-colors">
       <div className="flex items-center gap-3">
@@ -20,11 +21,18 @@ export function ChatHeader({ username, userNumber, isDark, onToggleTheme }: Chat
           <span className="text-[12px] text-[#65676b] dark:text-[#b0b3b8]">Active now</span>
         </div>
       </div>
-      <div>
+      <button onClick={onToggleUsers} className="bg-[#e4e6eb] dark:bg-[#3a3b3c] hover:bg-[#d8dadf] dark:hover:bg-[#4e4f50] rounded-full px-3 py-1.5 transition-colors flex items-center gap-1.5">
         <span className="text-[12px] text-[#65676b] dark:text-[#b0b3b8]">{userNumber} users are online</span>
-      </div>
+        <svg
+          className={`w-3.5 h-3.5 text-[#65676b] dark:text-[#b0b3b8] transition-transform duration-200 ${showUsers ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
       <div className="flex items-center gap-3">
-        {/* Theme Toggle */}
         <button
           onClick={onToggleTheme}
           className="w-9 h-9 bg-[#e4e6eb] dark:bg-[#3a3b3c] rounded-full flex items-center justify-center hover:bg-[#d8dadf] dark:hover:bg-[#4e4f50] transition"
