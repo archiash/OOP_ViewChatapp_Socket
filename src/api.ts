@@ -1,6 +1,6 @@
-import type { Message } from './types'
+import type { Message, User } from './types'
 
-export const API_BASE =  import.meta.env.VITE_API_URL 
+export const API_BASE = import.meta.env.VITE_API_URL
 
 export const api = {
   // Fetch all messages
@@ -10,6 +10,22 @@ export const api = {
       return res.json()
     }
     throw new Error('Failed to fetch messages')
+  },
+
+  getTypingUsers: async (): Promise<User[]> => {
+    const res = await fetch(`${API_BASE}/user/typing`)
+    if (res.ok) {
+      return res.json()
+    }
+    throw new Error('Failed to fetch typing users')
+  },
+
+  getUserNumber: async (): Promise<number> => {
+    const res = await fetch(`${API_BASE}/user/user-number`)
+    if (res.ok) {
+      return res.json()
+    }
+    throw new Error('Failed to fetch user number')
   },
 
   // Register a new user

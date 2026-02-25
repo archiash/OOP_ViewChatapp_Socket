@@ -1,6 +1,6 @@
-import type { Message } from '../types'
 import { MessageItem } from './MessageItem'
 import { ChatIcon } from './ChatIcon'
+import type { Message } from '../types'
 
 interface MessageListProps {
   messages: Message[]

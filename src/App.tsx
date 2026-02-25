@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react'
 import './index.css'
-import type { Message } from './types'
+import { LoginForm, ChatHeader, MessageList, MessageInput, TypingIndicator } from './components'
+import { useWebSocket } from './hooks/useWebSocket'
+import type { Message, User } from './types'
 import { api } from './api'
-import { LoginForm, ChatHeader, MessageList, MessageInput } from './components'
 
 function App() {
-  const [username, setUsername] = useState('')
-  const [userID, setUserID] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [searchFilter, setSearchFilter] = useState('')
+  const { isConnected, connect, disconnect, subscribe, sendMessage, unsubscribe } = useWebSocket()
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark'
   })
+
+  const [user, setUser] = useState<User | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [typingUsers, setTypingUsers] = useState<User[]>([])
+  const [userNumber, setUserNumber] = useState<number>(0)
+
 
   useEffect(() => {
     if (isDark) {
@@ -25,6 +29,13 @@ function App() {
 
   const toggleTheme = () => setIsDark(!isDark)
 
+  useEffect(() => {
+    if (user?.userID) {
+      connect()
+      return () => disconnect()
+    }
+  }, [user])
+
   const fetchMessages = async (filter?: string) => {
     try {
       const data = filter
@@ -36,76 +47,114 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    if (userID) {
-      fetchMessages(searchFilter || undefined)
-      const interval = setInterval(() => fetchMessages(searchFilter || undefined), 1500)
-      return () => clearInterval(interval)
+  const fetchUserNumber = async () => {
+    try {
+      const data = await api.getUserNumber()
+      console.log("user number fetched", data)
+      setUserNumber(data)
+    } catch (error) {
+      console.error('Failed to fetch user number:', error)
     }
-  }, [userID, searchFilter])
-
-  const handleSearch = (filter: string) => {
-    setSearchFilter(filter)
   }
 
+  const fetchTypingUsers = async () => {
+    try {
+      const data = await api.getTypingUsers()
+      console.log("typing users fetched", data)
+      setTypingUsers(data)
+    } catch (error) {
+      console.error('Failed to fetch typing users:', error)
+    }
+  }
+
+  useEffect(() => {
+
+    if (!isConnected) return
+
+    fetchMessages()
+    fetchUserNumber()
+    fetchTypingUsers()
+
+    subscribe("/topic/user-number", (payload) => {
+      const message = JSON.parse(payload.body)
+      setUserNumber(message)
+    })
+
+    subscribe("/topic/typing", (payload) => {
+      const message = JSON.parse(payload.body)
+      setTypingUsers(message)
+    })
+
+    subscribe("/topic/messages", (payload) => {
+      const message = JSON.parse(payload.body)
+      console.log("message received", message)
+      setMessages(message)
+    })
+
+    return () => {
+      unsubscribe("/topic/user-number")
+      unsubscribe("/topic/typing")
+      unsubscribe("/topic/messages")
+    }
+
+  }, [isConnected])
+
   const handleLogin = (id: string, name: string) => {
-    setUserID(id)
-    setUsername(name)
+    setUser({ userID: id, username: name })
   }
 
   const handleSendMessage = async (message: string) => {
-    if (!userID) return
+    if (!user) return
 
-    try {
-      const success = await api.sendMessage(userID, username, message)
-      if (success) {
-        fetchMessages()
-      }
-    } catch (error) {
-      console.error('Failed to send message:', error)
-    }
+    sendMessage("/chat/message", {
+      userID: user.userID,
+      message,
+    })
+  }
+
+  const handleTyping = (isTyping: boolean) => {
+    if (!user) return
+
+    sendMessage("/chat/typing", {
+      userID: user.userID,
+      typing: isTyping,
+    })
   }
 
   const handleDeleteMessage = async (messageID: string) => {
-    if (!userID) return
+    if (!user) return
 
-    try {
-      const success = await api.deleteMessage(userID, messageID)
-      if (success) {
-        fetchMessages()
-      }
-    } catch (error) {
-      console.error('Failed to delete message:', error)
-    }
+    sendMessage("/chat/delete-message", {
+      userID: user.userID,
+      messageID,
+    })
   }
 
   const handleEditMessage = async (messageID: string, newMessage: string) => {
-    if (!userID) return
+    if (!user) return
 
-    try {
-      const success = await api.editMessage(messageID, userID, newMessage)
-      if (success) {
-        fetchMessages()
-      }
-    } catch (error) {
-      console.error('Failed to edit message:', error)
-    }
+    sendMessage("/chat/edit-message", {
+      messageID,
+      userID: user.userID,
+      newMessage,
+    })
   }
 
-  if (!userID) {
+  if (!user) {
     return <LoginForm onLogin={handleLogin} isDark={isDark} onToggleTheme={toggleTheme} />
   }
 
   return (
-    <div className="h-screen flex flex-col max-w-2xl mx-auto bg-white dark:bg-[#1a1a1a] transition-colors">
-      <ChatHeader username={username} onSearch={handleSearch} isDark={isDark} onToggleTheme={toggleTheme} />
+    <div className="h-screen w-full flex flex-col  bg-white dark:bg-[#1a1a1a] transition-colors">
+      <ChatHeader username={user.username} userNumber={userNumber} isDark={isDark} onToggleTheme={toggleTheme} />
       <MessageList
         messages={messages}
-        currentUserID={userID}
+        currentUserID={user.userID}
         onDeleteMessage={handleDeleteMessage}
         onEditMessage={handleEditMessage}
       />
-      <MessageInput onSend={handleSendMessage} />
+      <TypingIndicator typingUsers={typingUsers} currentUserID={user.userID} />
+      <MessageInput onSend={handleSendMessage} onTyping={handleTyping} />
     </div>
   )
 }
