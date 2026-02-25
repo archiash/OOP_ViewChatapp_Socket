@@ -39,6 +39,26 @@ VITE_API_URL (e.g., http://localhost:8080)
 | `/message/search` | GET | Query | `?filter=<keyword>` | `Message[]` |
 | `/message/edit` | PUT | Body | `{ userID: string, messageID: string, newMessage: string }` | `boolean` |
 
+## WebSocket Specification
+
+### Subscriptions (Listen)
+
+| Destination | Payload Type | Description |
+|-------------|--------------|-------------|
+| `/topic/messages` | `Message[]` | Receives message list |
+| `/topic/typing` | `User[]` | Receives the list of users currently typing |
+| `/topic/user-number` | `number` | Receives the current total number of online users |
+| `/user/queue/errors` | `string`| Receives user-specific socket errors |
+
+### Publications (Send)
+
+| Destination | Payload Type | Action |
+|-------------|--------------|--------|
+| `/chat/message` | `{ userID: string, message: string }` | Send a new chat message |
+| `/chat/edit-message` | `{ userID: string, messageID: string, newMessage: string }` | Edit an existing message |
+| `/chat/delete-message` | `{ userID: string, messageID: string }` | Delete a message |
+| `/chat/typing` | `{ userID: string, typing: boolean }` | Update user's typing status |
+
 ### Data Types
 
 **User**
