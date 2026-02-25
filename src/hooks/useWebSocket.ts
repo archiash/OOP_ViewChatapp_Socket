@@ -46,7 +46,6 @@ export const useWebSocket = () => {
     };
 
     const connect = (uuid: string) => {
-        console.log(serverUrl)
         try {
             const stompClient = new Client({
                 webSocketFactory: () => new SockJS(`${serverUrl}/ws?uuid=${uuid}`),
@@ -55,7 +54,7 @@ export const useWebSocket = () => {
                 reconnectDelay: 2000,
             });
 
-            console.log("connected");
+            console.log("Connecting...");
             stompClient.activate();
         } catch (e) {
             console.log(e);
