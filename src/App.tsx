@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './index.css'
-import { LoginForm, ChatHeader, MessageList, MessageInput, TypingIndicator } from './components'
+import { LoginForm, ChatHeader, MessageList, MessageInput, TypingIndicator, BlueScreen, OnlineUserRow } from './components'
 import { useWebSocket } from './hooks/useWebSocket'
 import type { Message, User } from './types'
 import { api } from './api'
@@ -15,6 +15,9 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([])
   const [typingUsers, setTypingUsers] = useState<User[]>([])
   const [userNumber, setUserNumber] = useState<number>(0)
+  const [onlineUsers, setOnlineUsers] = useState<User[]>([])
+  const [showUsers, setShowUsers] = useState<boolean>(false)
+  const [socketError, setSocketError] = useState<string | object | null>(null)
 
 
   useEffect(() => {
@@ -31,10 +34,12 @@ function App() {
 
   useEffect(() => {
     if (user?.userID) {
-      connect()
+      connect(user.userID)
+      // Mock online users for UI testing
+      setOnlineUsers([user, { userID: "mock-1", username: "Alice" }, { userID: "mock-2", username: "Bob" }])
       return () => disconnect()
     }
-  }, [user])
+  }, [user?.userID])
 
   const fetchMessages = async (filter?: string) => {
     try {
@@ -75,6 +80,12 @@ function App() {
     fetchUserNumber()
     fetchTypingUsers()
 
+    subscribe("/user/queue/errors", (payload) => {
+      const message = payload.body
+      console.log("error received", message)
+      setSocketError(message)
+    })
+
     subscribe("/topic/user-number", (payload) => {
       const message = JSON.parse(payload.body)
       setUserNumber(message)
@@ -112,7 +123,7 @@ function App() {
     })
   }
 
-  const handleTyping = (isTyping: boolean) => {
+  const handleTyping = async (isTyping: boolean) => {
     if (!user) return
 
     sendMessage("/chat/typing", {
@@ -144,9 +155,14 @@ function App() {
     return <LoginForm onLogin={handleLogin} isDark={isDark} onToggleTheme={toggleTheme} />
   }
 
+  if (socketError) {
+    return <BlueScreen error={socketError} onReset={() => setSocketError(null)} />
+  }
+
   return (
     <div className="h-screen w-full flex flex-col  bg-white dark:bg-[#1a1a1a] transition-colors">
-      <ChatHeader username={user.username} userNumber={userNumber} isDark={isDark} onToggleTheme={toggleTheme} />
+      <ChatHeader username={user.username} userNumber={userNumber} showUsers={showUsers} isDark={isDark} onToggleTheme={toggleTheme} onToggleUsers={() => setShowUsers(!showUsers)} />
+      {showUsers && <OnlineUserRow users={onlineUsers} />}
       <MessageList
         messages={messages}
         currentUserID={user.userID}
