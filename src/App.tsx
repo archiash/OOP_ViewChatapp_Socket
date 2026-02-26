@@ -73,8 +73,8 @@ function App() {
   const fetchOnlineUsers = async () => {
     try {
       const data = await api.getOnlineUsers()
-      console.log("online users fetched", data)
-      setOnlineUsers(data)
+      const filteredMessage = data.filter((user: User) => user.online === true)
+      setOnlineUsers(filteredMessage)
     } catch (error) {
       console.error('Failed to fetch online users:', error)
     }
@@ -107,7 +107,9 @@ function App() {
 
     subscribe("/topic/user-list", (payload) => {
       const message = JSON.parse(payload.body)
-      setOnlineUsers(message)
+      console.log("user list received", message)
+      const filteredMessage = message.filter((user: User) => user.online === true)
+      setOnlineUsers(filteredMessage)
     })
 
     subscribe("/topic/messages", (payload) => {
@@ -127,7 +129,7 @@ function App() {
   }, [isConnected])
 
   const handleLogin = (id: string, name: string) => {
-    setUser({ userID: id, username: name })
+    setUser({ userID: id, username: name, online: true })
   }
 
   const handleSendMessage = async (message: string) => {

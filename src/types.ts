@@ -1,6 +1,7 @@
 export interface User {
   userID: string
   username: string
+  online: boolean
 }
 
 export interface Message {
